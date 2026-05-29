@@ -23,6 +23,62 @@ copy .env.example .env
 # Edit .env with your LANGCHAIN_API_KEY, OPENAI_API_KEY, etc.
 ```
 
+## Postgres + pgvector (Docker)
+
+Start the database:
+
+```powershell
+docker compose up -d
+```
+
+Verify `pgvector` is installed:
+
+```powershell
+docker compose exec postgres psql -U finops -d finops -c "CREATE EXTENSION IF NOT EXISTS vector; SELECT extname FROM pg_extension WHERE extname IN ('vector');"
+```
+
+Note: this project defaults to host port `5433` to avoid collisions with any local Postgres running on `5432`.
+
+Stop and delete containers (keeps data volume):
+
+```powershell
+docker compose down
+```
+
+If you want to wipe the database volume:
+
+```powershell
+docker compose down -v
+```
+
+## Minimal RAG pipeline (Milestone #4)
+
+1) Make sure Postgres is running:
+
+```powershell
+docker compose up -d
+```
+
+2) Ensure an embedding model is available in Ollama:
+
+```powershell
+ollama pull nomic-embed-text
+```
+
+3) Ingest LangGraph docs into pgvector:
+
+```powershell
+uv run finops-ingest-langgraph
+```
+
+4) Ask a query using cosine similarity retrieval + LLM answer:
+
+```powershell
+uv run finops-query-rag --question "What is LangGraph and when should I use it?"
+```
+
+Each step is traced to LangSmith. In the query run, check the `retrieve_chunks` and `answer_from_context` spans.
+
 ## Free LLM options for the smoke test
 
 | Provider | Cost | Setup |

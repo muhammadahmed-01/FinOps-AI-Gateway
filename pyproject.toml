@@ -8,6 +8,8 @@ authors = [
 ]
 requires-python = ">=3.11,<3.14"
 dependencies = [
+    "beautifulsoup4>=4.14.3",
+    "httpx>=0.28.1",
     "langchain>=1.3.2",
     "langchain-anthropic>=1.4.4",
     "langchain-core>=1.4.0",
@@ -15,11 +17,15 @@ dependencies = [
     "langchain-ollama>=1.1.0",
     "langchain-openai>=1.2.2",
     "langsmith>=0.8.6",
+    "pgvector>=0.4.2",
+    "psycopg[binary]>=3.3.4",
     "python-dotenv>=1.2.2",
 ]
 
 [project.scripts]
 finops-trace-smoke = "finops_gateway.scripts.trace_smoke:main"
+finops-ingest-langgraph = "finops_gateway.scripts.ingest_langgraph_docs:main"
+finops-query-rag = "finops_gateway.scripts.query_rag:main"
 
 [build-system]
 requires = ["uv_build>=0.11.17,<0.12.0"]

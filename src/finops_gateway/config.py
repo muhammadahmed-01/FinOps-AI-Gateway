@@ -7,6 +7,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+from finops_gateway.embeddings import EmbeddingProvider, get_embedding_provider
 from finops_gateway.llm import SmokeProvider, get_smoke_provider
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -77,6 +78,18 @@ def validate_smoke_llm(provider: SmokeProvider | None = None) -> None:
         return
 
     _require("ANTHROPIC_API_KEY")
+
+
+def validate_database() -> None:
+    """Ensure PostgreSQL connection string is configured."""
+    _require("DATABASE_URL")
+
+
+def validate_embeddings(provider: EmbeddingProvider | None = None) -> None:
+    """Ensure selected embedding provider is configured."""
+    provider = provider or get_embedding_provider()
+    if provider == "openai":
+        _require("OPENAI_API_KEY")
 
 
 def validate_trace_smoke() -> None:
