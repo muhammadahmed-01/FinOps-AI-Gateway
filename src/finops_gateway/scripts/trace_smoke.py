@@ -1,30 +1,37 @@
-"""Minimal LangSmith trace smoke test using OpenAI."""
+"""Minimal LangSmith trace smoke test (provider selectable via .env)."""
 
 from __future__ import annotations
 
 import os
 
 from langchain_core.messages import HumanMessage
-from langchain_openai import ChatOpenAI
 
 from finops_gateway.config import validate_trace_smoke
+from finops_gateway.llm import build_smoke_llm, get_smoke_provider
 
 
 def main() -> None:
     validate_trace_smoke()
 
-    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+    provider = get_smoke_provider()
+    llm = build_smoke_llm()
     response = llm.invoke(
         [HumanMessage(content="What is LangGraph in one sentence?")]
     )
 
     print(response.content)
     project = os.getenv("LANGCHAIN_PROJECT", "default")
-    print(f"\nTrace project: {project}")
+    print(f"\nProvider: {provider}")
+    print(f"Trace project: {project}")
     print(
         "Open LangSmith → Projects → "
         f"{project} to verify latency, tokens, and cost."
     )
+    if provider == "ollama":
+        print(
+            "\nNote: Local Ollama runs show $0 cost in LangSmith; "
+            "latency and token counts still appear."
+        )
 
 
 if __name__ == "__main__":
