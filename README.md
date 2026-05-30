@@ -128,6 +128,6 @@ uv run finops-trace-smoke
 
 - [x] Python project (`pyproject.toml`, uv, virtual env)
 - [x] LangSmith tracing enabled
-- [ ] Postgres + pgvector (Docker)
-- [ ] Doc ingestion and retrieval
-- [ ] End-to-end RAG query with full trace
+- [x] Postgres + pgvector (Docker)
+- [x] Doc ingestion and retrieval
+- [x] End-to-end RAG query with full trace

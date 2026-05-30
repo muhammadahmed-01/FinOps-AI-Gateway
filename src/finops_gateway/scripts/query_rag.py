@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import sys
 
 from langchain_core.messages import HumanMessage
 from langsmith import traceable
@@ -55,7 +56,13 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def _configure_stdout() -> None:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
+
 def main() -> None:
+    _configure_stdout()
     load_settings()
     validate_langsmith()
     validate_database()
