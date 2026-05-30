@@ -101,9 +101,11 @@ ollama pull qwen3:4b
 uv sync
 ```
 
-Ensure `.env` has `GROQ_API_KEY` (classifier), `ANTHROPIC_API_KEY` (medium/complex tiers), and `DATABASE_URL`.
+Ensure `.env` has `GROQ_API_KEY` (classifier + demo fallback). `ANTHROPIC_API_KEY` is **optional** — without a real key, medium/complex use Groq while Grafana shows simulated Claude pricing (demo mode).
 
-### Run gateway queries (metrics on :9464)
+### Run gateway queries
+
+Metrics are pushed to **Pushgateway** (`:9091`) after each query — no separate metrics server required for normal use.
 
 Simple factual query (routes to Ollama):
 
@@ -123,15 +125,22 @@ Run all three tiers in one metrics session (best for Grafana):
 uv run finops-demo-tiers
 ```
 
-Keep metrics alive between separate query runs:
+Keep metrics alive between separate query runs (optional legacy HTTP server):
 
 ```powershell
-# Terminal 1
+# Terminal 1 — optional; Pushgateway is the default metrics path
 uv run finops-metrics-serve
 
 # Terminal 2
 uv run finops-query-gateway --question "What is a race condition?"
 uv run finops-query-gateway --complex-question
+```
+
+### Tests
+
+```powershell
+uv sync --group dev
+uv run pytest
 ```
 
 ### Grafana

@@ -6,7 +6,7 @@ import argparse
 import os
 import sys
 
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage, SystemMessage
 from langsmith import traceable
 
 from finops_gateway.config import (
@@ -16,6 +16,7 @@ from finops_gateway.config import (
     validate_langsmith,
     validate_smoke_llm,
 )
+from finops_gateway.context import build_context_blocks
 from finops_gateway.embeddings import build_embeddings
 from finops_gateway.llm import build_smoke_llm
 from finops_gateway.rag.db import get_connection, query_similar_chunks
@@ -34,15 +35,24 @@ def retrieve(query: str, k: int) -> tuple[list, list[float]]:
 def answer(question: str, context_blocks: list[str]) -> str:
     llm = build_smoke_llm()
     context = "\n\n".join(context_blocks)
-    prompt = (
-        "You are a helpful assistant answering questions about LangGraph.\n"
-        "Use only the provided context. If unsure, say you do not know.\n\n"
-        f"Question: {question}\n\n"
-        f"Context:\n{context}\n\n"
-        "Answer concisely and include references in plain text."
-    )
-    response = llm.invoke([HumanMessage(content=prompt)])
-    return str(response.content)
+    messages = [
+        SystemMessage(
+            content=(
+                "You are a helpful assistant answering questions from the provided context. "
+                "Use only the context. If unsure, say you do not know. "
+                "Answer concisely and include references in plain text."
+            )
+        ),
+        HumanMessage(
+            content=(
+                f"Question:\n<user_query>\n{question}\n</user_query>\n\n"
+                f"Context:\n<context>\n{context}\n</context>"
+            )
+        ),
+    ]
+    response = llm.invoke(messages)
+    content = response.content
+    return content if isinstance(content, str) else str(content)
 
 
 def parse_args() -> argparse.Namespace:
@@ -74,10 +84,7 @@ def main() -> None:
     if not rows:
         raise RuntimeError("No chunks found. Run ingestion first.")
 
-    context_blocks = [
-        f"[{idx + 1}] {row.title} ({row.url})\n{row.content[:1000]}"
-        for idx, row in enumerate(rows)
-    ]
+    context_blocks = build_context_blocks(rows)
     response = answer(args.question, context_blocks)
 
     print("\nAnswer:\n")

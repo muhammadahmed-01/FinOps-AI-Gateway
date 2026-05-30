@@ -92,6 +92,19 @@ def validate_embeddings(provider: EmbeddingProvider | None = None) -> None:
         _require("OPENAI_API_KEY")
 
 
+def anthropic_configured() -> bool:
+    """True when a real Anthropic API key is present (not a placeholder)."""
+    key = os.getenv("ANTHROPIC_API_KEY", "").strip()
+    if not key or key.startswith("sk-ant-..."):
+        return False
+    return key.startswith("sk-ant-")
+
+
+def routing_mode() -> str:
+    """live = Anthropic for medium/complex; demo = Groq fallback + simulated Claude cost."""
+    return "live" if anthropic_configured() else "demo"
+
+
 def validate_gateway() -> None:
     """Validate env vars for hybrid retrieval + cost routing."""
     load_settings()
@@ -103,8 +116,9 @@ def validate_gateway() -> None:
     if classifier == "groq":
         _require("GROQ_API_KEY")
 
-    # Medium/complex tiers use Anthropic when invoked.
-    _require("ANTHROPIC_API_KEY")
+    if not anthropic_configured():
+        # Demo mode: Groq answers medium/complex; Grafana uses Claude list pricing.
+        return
 
 
 def validate_trace_smoke() -> None:

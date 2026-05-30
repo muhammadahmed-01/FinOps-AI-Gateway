@@ -40,8 +40,14 @@ Without a real `ANTHROPIC_API_KEY`, medium/complex use **Groq** for inference bu
 uv run finops-demo-tiers
 uv run finops-query-gateway --question "..."
 uv run finops-ingest-langgraph
+uv run pytest
 docker compose up -d
 ```
+
+## Subagents (`.cursor/agents/`)
+
+- `llm-best-practices-reviewer` — readonly audit vs Anthropic/LangChain/LangSmith docs
+- `test-verifier` — runs `uv run pytest -v` and reports results
 
 ## Windows
 

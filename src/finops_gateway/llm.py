@@ -7,10 +7,13 @@ from typing import Literal
 
 from langchain_core.language_models.chat_models import BaseChatModel
 
+from finops_gateway.llm_settings import llm_max_retries, llm_max_tokens, llm_timeout_s
+
 SmokeProvider = Literal["ollama", "groq", "openai", "anthropic"]
 
 _DEFAULT_OLLAMA_MODEL = "llama3.2"
 _DEFAULT_GROQ_MODEL = "llama-3.1-8b-instant"
+_DEFAULT_ANTHROPIC_MODEL = "claude-haiku-4-5"
 
 
 def get_smoke_provider() -> SmokeProvider:
@@ -26,6 +29,8 @@ def get_smoke_provider() -> SmokeProvider:
 def build_smoke_llm() -> BaseChatModel:
     """Return a chat model for the LangSmith trace smoke test."""
     provider = get_smoke_provider()
+    timeout = llm_timeout_s()
+    max_retries = llm_max_retries()
 
     if provider == "ollama":
         from langchain_ollama import ChatOllama
@@ -34,6 +39,8 @@ def build_smoke_llm() -> BaseChatModel:
             model=os.getenv("OLLAMA_MODEL", _DEFAULT_OLLAMA_MODEL),
             base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
             temperature=0,
+            timeout=timeout,
+            num_retries=max_retries,
         )
 
     if provider == "groq":
@@ -42,6 +49,8 @@ def build_smoke_llm() -> BaseChatModel:
         return ChatGroq(
             model=os.getenv("GROQ_MODEL", _DEFAULT_GROQ_MODEL),
             temperature=0,
+            timeout=timeout,
+            max_retries=max_retries,
         )
 
     if provider == "openai":
@@ -50,11 +59,16 @@ def build_smoke_llm() -> BaseChatModel:
         return ChatOpenAI(
             model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
             temperature=0,
+            timeout=timeout,
+            max_retries=max_retries,
         )
 
     from langchain_anthropic import ChatAnthropic
 
     return ChatAnthropic(
-        model=os.getenv("ANTHROPIC_MODEL", "claude-3-5-haiku-latest"),
+        model=os.getenv("ANTHROPIC_MODEL", _DEFAULT_ANTHROPIC_MODEL),
         temperature=0,
+        max_tokens=llm_max_tokens(),
+        timeout=timeout,
+        max_retries=max_retries,
     )
