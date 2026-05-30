@@ -92,6 +92,21 @@ def validate_embeddings(provider: EmbeddingProvider | None = None) -> None:
         _require("OPENAI_API_KEY")
 
 
+def validate_gateway() -> None:
+    """Validate env vars for hybrid retrieval + cost routing."""
+    load_settings()
+    validate_langsmith()
+    validate_database()
+    validate_embeddings()
+
+    classifier = os.getenv("CLASSIFIER_PROVIDER", "groq").strip().lower()
+    if classifier == "groq":
+        _require("GROQ_API_KEY")
+
+    # Medium/complex tiers use Anthropic when invoked.
+    _require("ANTHROPIC_API_KEY")
+
+
 def validate_trace_smoke() -> None:
     """Validate all env vars needed for the LangSmith trace smoke test."""
     load_settings()

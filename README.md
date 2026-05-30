@@ -79,6 +79,78 @@ uv run finops-query-rag --question "What is LangGraph and when should I use it?"
 
 Each step is traced to LangSmith. In the query run, check the `retrieve_chunks` and `answer_from_context` spans.
 
+## Milestone 2 — Hybrid retrieval + cost routing
+
+### Stack added
+
+- **BM25 + pgvector** fused with reciprocal rank fusion (RRF)
+- **Cross-encoder reranker**: `cross-encoder/ms-marco-MiniLM-L-6-v2` (CPU)
+- **Complexity classifier** (structured LLM output → `simple|medium|complex`)
+- **Router**:
+  - `simple` → Ollama `qwen3:4b` ($0, ~2.5GB — fits 4GB VRAM)
+  - `medium` → Claude Haiku (~$0.001/query)
+  - `complex` → Claude Sonnet (~$0.015/query)
+- **Prometheus metrics** + **Grafana dashboard** (via Pushgateway — metrics persist after queries finish)
+
+### Setup
+
+```powershell
+docker compose up -d
+ollama pull nomic-embed-text
+ollama pull qwen3:4b
+uv sync
+```
+
+Ensure `.env` has `GROQ_API_KEY` (classifier), `ANTHROPIC_API_KEY` (medium/complex tiers), and `DATABASE_URL`.
+
+### Run gateway queries (metrics on :9464)
+
+Simple factual query (routes to Ollama):
+
+```powershell
+uv run finops-query-gateway --question "What is LangGraph?"
+```
+
+Complex architecture query (routes to Sonnet):
+
+```powershell
+uv run finops-query-gateway --complex-question
+```
+
+Run all three tiers in one metrics session (best for Grafana):
+
+```powershell
+uv run finops-demo-tiers
+```
+
+Keep metrics alive between separate query runs:
+
+```powershell
+# Terminal 1
+uv run finops-metrics-serve
+
+# Terminal 2
+uv run finops-query-gateway --question "What is a race condition?"
+uv run finops-query-gateway --complex-question
+```
+
+### Grafana
+
+1. Open [http://localhost:3001](http://localhost:3001) (`admin` / `admin`)
+2. Dashboard: **FinOps AI Gateway**
+3. Confirm panels:
+   - **Cost by Tier (USD total)**
+   - **Routing Decision Breakdown**
+   - **Retrieval Latency p95**
+   - **Tokens Used by Tier**
+
+Prometheus UI: [http://localhost:9090](http://localhost:9090)  
+Pushgateway UI: [http://localhost:9091](http://localhost:9091)
+
+Metrics are pushed to Pushgateway after each query, so panels stay populated even after the CLI exits.
+
+Exit criterion: run one simple + one complex query; Grafana shows different tiers and non-zero Sonnet/Haiku cost vs $0 Ollama.
+
 ## Free LLM options for the smoke test
 
 | Provider | Cost | Setup |
@@ -131,3 +203,11 @@ uv run finops-trace-smoke
 - [x] Postgres + pgvector (Docker)
 - [x] Doc ingestion and retrieval
 - [x] End-to-end RAG query with full trace
+
+## Milestone 2 progress
+
+- [x] BM25 + pgvector RRF fusion
+- [x] Cross-encoder reranking (ms-marco-MiniLM-L-6-v2)
+- [x] Complexity classifier + tier router
+- [x] Prometheus metrics (`tokens_used`, `cost_dollars`, `routing_tier`, `retrieval_latency`)
+- [x] Grafana dashboard (cost by tier, routing breakdown)

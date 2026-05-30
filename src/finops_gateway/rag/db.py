@@ -13,7 +13,39 @@ from psycopg.types.json import Jsonb
 
 
 @dataclass
+class ChunkRecord:
+    id: int
+    url: str
+    title: str
+    chunk_index: int
+    content: str
+
+    @classmethod
+    def fetch_all(cls, conn: psycopg.Connection[Any]) -> list["ChunkRecord"]:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT id, url, title, chunk_index, content
+                FROM doc_chunks
+                ORDER BY id;
+                """
+            )
+            rows = cur.fetchall()
+        return [
+            cls(
+                id=row["id"],
+                url=row["url"],
+                title=row["title"],
+                chunk_index=row["chunk_index"],
+                content=row["content"],
+            )
+            for row in rows
+        ]
+
+
+@dataclass
 class RetrievedChunk:
+    id: int
     url: str
     title: str
     chunk_index: int
@@ -87,6 +119,7 @@ def query_similar_chunks(
         cur.execute(
             """
             SELECT
+                id,
                 url,
                 title,
                 chunk_index,
@@ -101,6 +134,7 @@ def query_similar_chunks(
         rows = cur.fetchall()
     return [
         RetrievedChunk(
+            id=row["id"],
             url=row["url"],
             title=row["title"],
             chunk_index=row["chunk_index"],

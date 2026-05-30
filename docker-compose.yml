@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-finops}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-finops}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${POSTGRES_PORT:-5433}:5432"
     volumes:
       - finops_pgdata:/var/lib/postgresql/data
       - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
@@ -16,6 +16,37 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
+
+  pushgateway:
+    image: prom/pushgateway:v1.9.0
+    container_name: finops_pushgateway
+    ports:
+      - "9091:9091"
+
+  prometheus:
+    image: prom/prometheus:v3.2.1
+    container_name: finops_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - pushgateway
+
+  grafana:
+    image: grafana/grafana:11.5.2
+    container_name: finops_grafana
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./docker/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
 
 volumes:
   finops_pgdata:
