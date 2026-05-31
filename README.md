@@ -79,7 +79,7 @@ After bootstrap, confirm in dashboard **FinOps AI Gateway**:
 - **Tokens Used by Tier**
 - **RAGAS Scores (baseline vs hybrid)**
 
-![Cost dashboard](docs/images/grafana-cost-by-tier.png)
+![Cost dashboard](docs/images/grafana-dashboard.png)
 
 ---
 
