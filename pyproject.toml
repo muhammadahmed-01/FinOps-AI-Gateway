@@ -41,6 +41,7 @@ finops-generate-eval-dataset = "finops_gateway.scripts.generate_eval_dataset:mai
 finops-ragas-eval = "finops_gateway.scripts.run_ragas_eval:main"
 finops-chat-session = "finops_gateway.scripts.chat_session:main"
 finops-load-test = "finops_gateway.scripts.load_test:main"
+finops-publish-results = "finops_gateway.scripts.publish_results:main"
 
 [build-system]
 requires = ["uv_build>=0.11.17,<0.12.0"]

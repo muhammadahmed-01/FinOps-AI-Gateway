@@ -1,0 +1,20 @@
+{
+  "description": "Authoritative 8-pair RAGAS comparison (k=4). Groq judge for faithfulness/context_precision; embedding proxy for answer_relevancy.",
+  "sample_count": 8,
+  "k": 4,
+  "baseline": {
+    "faithfulness": 0.769,
+    "answer_relevancy": 0.7716,
+    "context_precision": 0.6042
+  },
+  "hybrid": {
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.7947,
+    "context_precision": 0.7917
+  },
+  "delta": {
+    "faithfulness": 0.231,
+    "answer_relevancy": 0.0231,
+    "context_precision": 0.1875
+  }
+}

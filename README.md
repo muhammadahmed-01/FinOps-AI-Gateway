@@ -1,140 +1,143 @@
 # FinOps AI Gateway
 
-An observable, cost-routing AI gateway that routes queries between cheap and expensive LLM tiers based on complexity, with hybrid RAG over LangGraph/LangChain documentation.
+An observable, cost-routing AI gateway: classify query complexity, retrieve with hybrid RAG, route to cheap vs expensive LLM tiers, and expose **tokens, cost, routing tier, and latency** in Grafana + LangSmith.
 
-## Prerequisites
-
-- Python 3.11+
-- [uv](https://docs.astral.sh/uv/) package manager
-- LangSmith account and API key
-- **Ollama** (recommended, free/local) **or** Groq free API key **or** paid OpenAI/Anthropic keys
-
-## Setup
+## 60-second demo
 
 ```powershell
-cd "c:\Users\hassa\PycharmProjects\FinOps AI Gateway"
+copy .env.example .env   # set GROQ_API_KEY + LANGCHAIN_API_KEY
+.\scripts\bootstrap_demo.ps1
+```
 
-# Create virtual environment and install dependencies
-uv venv
-uv sync
+Open **http://localhost:3001** → dashboard **FinOps AI Gateway**. First run ~15–25 min (ingest + load test). See [How to run](#how-to-run) for details.
 
-# Configure secrets (do not commit .env)
+---
+
+## Problem
+
+Teams shipping RAG + LLM features face two blind spots:
+
+1. **Cost** — every query hits the same expensive model, even for simple factual lookups.
+2. **Quality** — retrieval changes (BM25, reranking) are hard to compare without structured eval metrics.
+
+This project treats the gateway as a **FinOps control plane**: route by complexity, measure spend per tier, and score retrieval quality with RAGAS — all visible in Grafana.
+
+---
+
+## Architecture
+
+![Architecture diagram](docs/images/architecture.png)
+
+Editable source: [docs/architecture.excalidraw](docs/architecture.excalidraw)
+
+**One query flows through four steps:**
+
+1. **Classify** — Groq `llama-3.1-8b-instant` → `simple | medium | complex`
+2. **Retrieve** — pgvector + BM25 → RRF fusion → cross-encoder rerank → top-k chunks
+3. **Route** — tier picks the answer model:
+   - `simple` → Ollama `qwen3:4b` (local, $0 actual)
+   - `medium` / `complex` → Claude Haiku/Sonnet *or* Groq fallback in demo mode
+4. **Observe** — metrics → Pushgateway → Prometheus → Grafana; traces → LangSmith
+
+Ollama runs in Docker Compose by default ([docs/OLLAMA.md](docs/OLLAMA.md)). On Windows with a GPU, stop the compose Ollama container and use host Ollama for faster demos.
+
+---
+
+## Results
+
+Numbers below are from runs on this project’s LangGraph doc corpus. Grafana uses **simulated Claude list pricing** for medium/complex tiers even when Groq answers for free (demo mode). See [routing/pricing.py](src/finops_gateway/routing/pricing.py).
+
+### Tier routing (12-query load test)
+
+| Metric | Value |
+|--------|-------|
+| Simple tier (local Ollama) | **7 / 12 (58%)** |
+| Simulated spend (actual routing) | **$0.015** total |
+| Simulated spend (if all complex) | ~$0.062 total |
+| **Spend reduction** | **~76%** vs all-complex baseline |
+| p50 latency | 56s (CPU/local Ollama — see caveats) |
+
+Source: [data/load_test_results.json](data/load_test_results.json)
+
+### RAGAS — hybrid vs baseline retrieval (8 pairs, k=4)
+
+| Metric | Baseline (cosine) | Hybrid + rerank | Delta |
+|--------|-------------------|-----------------|-------|
+| context_precision | 0.6042 | **0.7917** | **+0.1875** |
+| faithfulness | 0.7690 | 1.0000 | +0.2310 |
+| answer_relevancy | 0.7716 | 0.7947 | +0.0231 |
+
+Source: [data/eval/ragas_results_8pair.md](data/eval/ragas_results_8pair.md)
+
+### Grafana panels
+
+After bootstrap, confirm in dashboard **FinOps AI Gateway**:
+
+- **Cost by Tier (USD total)**
+- **Routing Decision Breakdown**
+- **Retrieval Latency p95**
+- **Tokens Used by Tier**
+- **RAGAS Scores (baseline vs hybrid)**
+
+![Cost dashboard](docs/images/grafana-cost-by-tier.png)
+
+---
+
+## How to run
+
+### Prerequisites
+
+- Python 3.11+ and [uv](https://docs.astral.sh/uv/)
+- Docker Desktop
+- Free [Groq](https://console.groq.com) API key (classifier)
+- [LangSmith](https://smith.langchain.com) API key (tracing)
+
+### Quick start
+
+```powershell
+git clone <your-repo-url>
+cd finops-ai-gateway
+
 copy .env.example .env
-# Edit .env with your LANGCHAIN_API_KEY, OPENAI_API_KEY, etc.
+# Required: GROQ_API_KEY, LANGCHAIN_API_KEY
+
+.\scripts\bootstrap_demo.ps1
 ```
 
-## Postgres + pgvector (Docker)
+Linux/macOS:
 
-Start the database:
+```bash
+chmod +x scripts/bootstrap_demo.sh
+./scripts/bootstrap_demo.sh
+```
+
+### What bootstrap does
+
+1. `docker compose up -d` — Postgres, Redis, Prometheus, Pushgateway, Grafana, **Ollama**
+2. Pull `nomic-embed-text` + `qwen3:4b` into Ollama
+3. `uv sync` → ingest LangGraph docs → demo tiers → 12-request load test
+4. `finops-publish-results` — pushes saved RAGAS 8-pair scores + load-test metrics
+
+### Manual steps (optional)
 
 ```powershell
 docker compose up -d
-```
-
-Verify `pgvector` is installed:
-
-```powershell
-docker compose exec postgres psql -U finops -d finops -c "CREATE EXTENSION IF NOT EXISTS vector; SELECT extname FROM pg_extension WHERE extname IN ('vector');"
-```
-
-Note: this project defaults to host port `5433` to avoid collisions with any local Postgres running on `5432`.
-
-Stop and delete containers (keeps data volume):
-
-```powershell
-docker compose down
-```
-
-If you want to wipe the database volume:
-
-```powershell
-docker compose down -v
-```
-
-## Minimal RAG pipeline (Milestone #4)
-
-1) Make sure Postgres is running:
-
-```powershell
-docker compose up -d
-```
-
-2) Ensure an embedding model is available in Ollama:
-
-```powershell
-ollama pull nomic-embed-text
-```
-
-3) Ingest LangGraph docs into pgvector:
-
-```powershell
-uv run finops-ingest-langgraph
-```
-
-4) Ask a query using cosine similarity retrieval + LLM answer:
-
-```powershell
-uv run finops-query-rag --question "What is LangGraph and when should I use it?"
-```
-
-Each step is traced to LangSmith. In the query run, check the `retrieve_chunks` and `answer_from_context` spans.
-
-## Milestone 2 — Hybrid retrieval + cost routing
-
-### Stack added
-
-- **BM25 + pgvector** fused with reciprocal rank fusion (RRF)
-- **Cross-encoder reranker**: `cross-encoder/ms-marco-MiniLM-L-6-v2` (CPU)
-- **Complexity classifier** (structured LLM output → `simple|medium|complex`)
-- **Router**:
-  - `simple` → Ollama `qwen3:4b` ($0, ~2.5GB — fits 4GB VRAM)
-  - `medium` → Claude Haiku (~$0.001/query)
-  - `complex` → Claude Sonnet (~$0.015/query)
-- **Prometheus metrics** + **Grafana dashboard** (via Pushgateway — metrics persist after queries finish)
-
-### Setup
-
-```powershell
-docker compose up -d
-ollama pull nomic-embed-text
-ollama pull qwen3:4b
 uv sync
-```
-
-Ensure `.env` has `GROQ_API_KEY` (classifier + demo fallback). `ANTHROPIC_API_KEY` is **optional** — without a real key, medium/complex use Groq while Grafana shows simulated Claude pricing (demo mode).
-
-### Run gateway queries
-
-Metrics are pushed to **Pushgateway** (`:9091`) after each query — no separate metrics server required for normal use.
-
-Simple factual query (routes to Ollama):
-
-```powershell
+uv run finops-ingest-langgraph
 uv run finops-query-gateway --question "What is LangGraph?"
-```
-
-Complex architecture query (routes to Sonnet):
-
-```powershell
-uv run finops-query-gateway --complex-question
-```
-
-Run all three tiers in one metrics session (best for Grafana):
-
-```powershell
 uv run finops-demo-tiers
+uv run finops-load-test --requests 12 --concurrency 2
+uv run finops-publish-results
 ```
 
-Keep metrics alive between separate query runs (optional legacy HTTP server):
+### URLs
 
-```powershell
-# Terminal 1 — optional; Pushgateway is the default metrics path
-uv run finops-metrics-serve
-
-# Terminal 2
-uv run finops-query-gateway --question "What is a race condition?"
-uv run finops-query-gateway --complex-question
-```
+| Service | URL |
+|---------|-----|
+| Grafana | http://localhost:3001 (admin / admin) |
+| Prometheus | http://localhost:9090 |
+| Pushgateway | http://localhost:9091 |
+| Postgres | localhost:5433 |
 
 ### Tests
 
@@ -143,102 +146,23 @@ uv sync --group dev
 uv run pytest
 ```
 
-### Grafana
+---
 
-1. Open [http://localhost:3001](http://localhost:3001) (`admin` / `admin`)
-2. Dashboard: **FinOps AI Gateway**
-3. Confirm panels:
-   - **Cost by Tier (USD total)**
-   - **Routing Decision Breakdown**
-   - **Retrieval Latency p95**
-   - **Tokens Used by Tier**
+## Further reading
 
-Prometheus UI: [http://localhost:9090](http://localhost:9090)  
-Pushgateway UI: [http://localhost:9091](http://localhost:9091)
+| Doc | Topic |
+|-----|-------|
+| [docs/OLLAMA.md](docs/OLLAMA.md) | Bundled vs host GPU Ollama |
+| [docs/RAGAS_EVAL.md](docs/RAGAS_EVAL.md) | Full RAGAS eval workflow |
+| [docs/BLOG_DRAFT.md](docs/BLOG_DRAFT.md) | Blog post with real numbers |
+| [docs/LINKEDIN_POST.md](docs/LINKEDIN_POST.md) | LinkedIn copy + screenshot |
+| [docs/PUBLISH.md](docs/PUBLISH.md) | GitHub push + profile pin checklist |
+| [docs/PROJECT_CONTEXT.md](docs/PROJECT_CONTEXT.md) | Architecture reference for contributors |
 
-Metrics are pushed to Pushgateway after each query, so panels stay populated even after the CLI exits.
+---
 
-Exit criterion: run one simple + one complex query; Grafana shows different tiers and non-zero Sonnet/Haiku cost vs $0 Ollama.
+## Caveats (say these in interviews)
 
-## Free LLM options for the smoke test
-
-| Provider | Cost | Setup |
-|----------|------|--------|
-| **ollama** (default) | Free, runs on your PC | Install [Ollama](https://ollama.com), then `ollama pull llama3.2` |
-| **groq** | Free tier with rate limits | API key from [console.groq.com](https://console.groq.com), set `SMOKE_LLM_PROVIDER=groq` |
-| openai / anthropic | API billing required | ChatGPT/Claude free plans do **not** include API quota |
-
-Set `SMOKE_LLM_PROVIDER` in `.env` (default: `ollama`). LangSmith tracing works with all of them.
-
-## LangSmith trace smoke test
-
-After filling in `.env` (at minimum LangSmith keys; for Ollama, no LLM API key needed):
-
-```powershell
-uv run python -m finops_gateway.scripts.trace_smoke
-```
-
-Or use the console script:
-
-```powershell
-uv run finops-trace-smoke
-```
-
-## Verify tracing in LangSmith
-
-1. Open [LangSmith](https://smith.langchain.com/) (or [EU dashboard](https://eu.smith.langchain.com/)) and sign in.
-2. Go to **Projects** → select `finops-ai-gateway` (or whatever you set in `LANGCHAIN_PROJECT`).
-3. Open the latest run from the smoke test.
-4. Confirm:
-   - **Latency** is shown per span (parent run + LLM child span).
-   - **Tokens** (input/output) appear on the LLM span.
-   - **Cost** is estimated on the LLM span for OpenAI models.
-
-### Troubleshooting
-
-| Symptom | Likely cause |
-|---------|----------------|
-| No runs in dashboard | `LANGCHAIN_TRACING_V2` not `true`, or `LANGCHAIN_API_KEY` missing/wrong |
-| Runs in wrong project | `LANGCHAIN_PROJECT` mismatch vs dashboard filter |
-| Latency only, no tokens/cost | Model provider not reporting usage; ensure OpenAI key is valid and model is `gpt-4o-mini` |
-| `405` / `JSONDecodeError` on `eu.smith.langchain.com` | Wrong endpoint: use `https://eu.api.smith.langchain.com` (API), not `https://eu.smith.langchain.com` (dashboard) |
-| OpenAI `429 insufficient_quota` | Use `SMOKE_LLM_PROVIDER=ollama` or `groq`, or add OpenAI billing credits |
-| Ollama connection error | Start Ollama app / `ollama serve`, then `ollama pull llama3.2` |
-
-## Milestone 1 progress
-
-- [x] Python project (`pyproject.toml`, uv, virtual env)
-- [x] LangSmith tracing enabled
-- [x] Postgres + pgvector (Docker)
-- [x] Doc ingestion and retrieval
-- [x] End-to-end RAG query with full trace
-
-## Milestone 2 progress
-
-- [x] BM25 + pgvector RRF fusion
-- [x] Cross-encoder reranking (ms-marco-MiniLM-L-6-v2)
-- [x] Complexity classifier + tier router
-- [x] Prometheus metrics (`tokens_used`, `cost_dollars`, `routing_tier`, `retrieval_latency`)
-- [x] Grafana dashboard (cost by tier, routing breakdown)
-
-## Milestone 3 — RAGAS eval + Redis sessions
-
-### RAGAS baseline vs hybrid
-
-See [docs/RAGAS_EVAL.md](docs/RAGAS_EVAL.md).
-
-```powershell
-docker compose up -d
-uv run finops-ingest-langgraph          # INGEST_SEED_SET=langgraph (default)
-uv run finops-generate-eval-dataset --count 50
-uv run finops-ragas-eval                # pushes scores to Grafana panel 5
-```
-
-Results table: `data/eval/ragas_results.md`
-
-### Redis multi-turn chat
-
-```powershell
-docker compose up -d redis
-uv run finops-chat-session --verify      # 5-turn name recall check
-```
+- **Simulated pricing** — Grafana cost uses Claude list rates; actual API spend may be $0 on Groq/Ollama demo mode.
+- **Latency** — local Ollama on 4GB GPU or CPU Docker is slow; routing/cost story is still valid.
+- **RAGAS scope** — canonical benchmark is **8 pairs**; full 50-pair runs need cloud judge quota or paid API.
