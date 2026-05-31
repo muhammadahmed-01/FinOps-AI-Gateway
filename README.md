@@ -161,7 +161,7 @@ uv run pytest
 
 ---
 
-## Caveats (say these in interviews)
+## Caveats
 
 - **Simulated pricing** — Grafana cost uses Claude list rates; actual API spend may be $0 on Groq/Ollama demo mode.
 - **Latency** — local Ollama on 4GB GPU or CPU Docker is slow; routing/cost story is still valid.
