@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 
-from prometheus_client import CollectorRegistry, Counter, Histogram, pushadd_to_gateway
+from prometheus_client import CollectorRegistry, Counter, Gauge, Histogram, pushadd_to_gateway
 
 REGISTRY = CollectorRegistry()
 
@@ -32,6 +32,12 @@ RETRIEVAL_LATENCY = Histogram(
     buckets=(0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0, 30.0, 60.0, 120.0, 300.0),
     registry=REGISTRY,
 )
+RAGAS_SCORE = Gauge(
+    "finops_ragas_score",
+    "Latest RAGAS evaluation score (0-1)",
+    ["pipeline", "metric"],
+    registry=REGISTRY,
+)
 
 
 def push_metrics() -> None:
@@ -56,4 +62,10 @@ def record_query_metrics(
     TOKENS_USED.labels(tier=tier, direction="input").inc(input_tokens)
     TOKENS_USED.labels(tier=tier, direction="output").inc(output_tokens)
     RETRIEVAL_LATENCY.observe(retrieval_latency_s)
+    push_metrics()
+
+
+def record_ragas_scores(pipeline: str, scores: dict[str, float]) -> None:
+    for metric, value in scores.items():
+        RAGAS_SCORE.labels(pipeline=pipeline, metric=metric).set(value)
     push_metrics()

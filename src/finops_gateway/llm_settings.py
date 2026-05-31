@@ -9,6 +9,15 @@ def llm_timeout_s() -> float:
     return float(os.getenv("LLM_TIMEOUT_S", "60"))
 
 
+def ragas_timeout_s() -> float:
+    return float(os.getenv("RAGAS_TIMEOUT_S", "900"))
+
+
+def eval_llm_timeout_s() -> float:
+    """Longer timeout for batch eval on local GPU (default 60s is too short)."""
+    return float(os.getenv("EVAL_LLM_TIMEOUT_S", os.getenv("LLM_TIMEOUT_S", "300")))
+
+
 def llm_max_retries() -> int:
     return int(os.getenv("LLM_MAX_RETRIES", "2"))
 

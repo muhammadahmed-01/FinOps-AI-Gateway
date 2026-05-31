@@ -220,3 +220,25 @@ uv run finops-trace-smoke
 - [x] Complexity classifier + tier router
 - [x] Prometheus metrics (`tokens_used`, `cost_dollars`, `routing_tier`, `retrieval_latency`)
 - [x] Grafana dashboard (cost by tier, routing breakdown)
+
+## Milestone 3 — RAGAS eval + Redis sessions
+
+### RAGAS baseline vs hybrid
+
+See [docs/RAGAS_EVAL.md](docs/RAGAS_EVAL.md).
+
+```powershell
+docker compose up -d
+uv run finops-ingest-langgraph          # INGEST_SEED_SET=langgraph (default)
+uv run finops-generate-eval-dataset --count 50
+uv run finops-ragas-eval                # pushes scores to Grafana panel 5
+```
+
+Results table: `data/eval/ragas_results.md`
+
+### Redis multi-turn chat
+
+```powershell
+docker compose up -d redis
+uv run finops-chat-session --verify      # 5-turn name recall check
+```

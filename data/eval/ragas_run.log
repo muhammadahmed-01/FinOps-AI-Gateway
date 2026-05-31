@@ -1,0 +1,20 @@
+Log file: C:\Users\hassa\PycharmProjects\FinOps AI Gateway\data\eval\ragas_run.log
+RAGAS judge: gemini (gemini-2.0-flash) | Eval answers: ollama (qwen3:4b)
+Evaluating 5 Q&A pairs (k=4)...
+
+Using cached pipeline rows (skip retrieve+answer).
+Scoring cached rows with RAGAS...
+Baseline scores: faithfulness=0.0000 context_precision=0.0000
+Hybrid scores: faithfulness=0.0000 context_precision=0.0000
+| Metric | Baseline (cosine) | Hybrid+rerank | Delta |
+|--------|-------------------|---------------|-------|
+| faithfulness | 0.0000 | 0.0000 | +0.0000 |
+| answer_relevancy | 0.5155 | 0.5155 | +0.0000 |
+| context_precision | 0.0000 | 0.0000 | +0.0000 |
+
+_answer_relevancy = embedding cosine. RAGAS judge: gemini (free) > ollama llama3.2:1b judge + qwen3:4b answers._
+
+Saved table to C:\Users\hassa\PycharmProjects\FinOps AI Gateway\data\eval\ragas_results.md
+WARNING: hybrid context_precision did not beat baseline. Try smaller CHUNK_SIZE / CHUNK_OVERLAP and re-ingest LangGraph docs.
+
+RAGAS scores pushed to Pushgateway — refresh Grafana panel: RAGAS Scores

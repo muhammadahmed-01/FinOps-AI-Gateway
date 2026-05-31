@@ -96,6 +96,36 @@
       ],
       "title": "Tokens Used by Tier",
       "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "Prometheus"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "decimals": 3,
+          "max": 1,
+          "min": 0,
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 16},
+      "id": 5,
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "showUnfilled": true
+      },
+      "targets": [
+        {
+          "expr": "finops_ragas_score",
+          "legendFormat": "{{pipeline}} · {{metric}}",
+          "refId": "A"
+        }
+      ],
+      "title": "RAGAS Scores (baseline vs hybrid)",
+      "type": "bargauge"
     }
   ],
   "refresh": "5s",

@@ -1,0 +1,356 @@
+{
+  "version": 1,
+  "source": "langgraph-docs",
+  "pairs": [
+    {
+      "id": 1,
+      "question": "What is the role of the input_message in the workflow?",
+      "ground_truth": "user",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/use-functional-api",
+      "source_title": "Use the functional API - Docs by LangChain"
+    },
+    {
+      "id": 2,
+      "question": "What is the output of get_state_history in our example?",
+      "ground_truth": "A list of StateSnapshot objects containing the state history.",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/persistence",
+      "source_title": "Persistence - Docs by LangChain"
+    },
+    {
+      "id": 3,
+      "question": "What is the minimum length for a password in the provided code?",
+      "ground_truth": "12 characters",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/thinking-in-langgraph",
+      "source_title": "Thinking in LangGraph - Docs by LangChain"
+    },
+    {
+      "id": 4,
+      "question": "What is the correct way to create records in a LangChain interrupt?",
+      "ground_truth": "Check if the record exists before creating it.",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/interrupts",
+      "source_title": "Interrupts - Docs by LangChain"
+    },
+    {
+      "id": 5,
+      "question": "What happens when stream.interrupted is True?",
+      "ground_truth": "stream.interrupts contains the payloads passed to interrupt()",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/interrupts",
+      "source_title": "Interrupts - Docs by LangChain"
+    },
+    {
+      "id": 6,
+      "question": "What is the purpose of the 'tasks' streaming mode in LangChain?",
+      "ground_truth": "What is the purpose of the 'tasks' streaming mode in LangChain?",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/streaming",
+      "source_title": "Streaming - Docs by LangChain"
+    },
+    {
+      "id": 7,
+      "question": "What is the purpose of configuring per-node timeouts in LangGraph?",
+      "ground_truth": "Configure per-node timeouts to handle failures due to slow external APIs, transient network errors, or unhandled exceptions.",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/fault-tolerance",
+      "source_title": "Fault tolerance - Docs by LangChain"
+    },
+    {
+      "id": 8,
+      "question": "What is the Graph API overview in LangChain?",
+      "ground_truth": "Graph API overview",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/use-graph-api",
+      "source_title": "Use the graph API - Docs by LangChain"
+    },
+    {
+      "id": 9,
+      "question": "What is a thread in LangGraph persistence?",
+      "ground_truth": "What is a thread in LangGraph persistence?",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/persistence",
+      "source_title": "Persistence - Docs by LangChain"
+    },
+    {
+      "id": 10,
+      "question": "What is the maximum number of attempts for the 'model' node?",
+      "ground_truth": "What is the maximum number of attempts for the 'model' node?",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/use-graph-api",
+      "source_title": "Use the graph API - Docs by LangChain"
+    },
+    {
+      "id": 11,
+      "question": "What happens when you pass a Command with update as input to invoke() or stream()?",
+      "ground_truth": "The graph will appear stuck if it already finished.",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/graph-api",
+      "source_title": "Graph API overview - Docs by LangChain"
+    },
+    {
+      "id": 12,
+      "question": "What is the purpose of the multiply function in the LangGraph Functional API?",
+      "ground_truth": "The multiply function is used to multiply two integers.",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/quickstart",
+      "source_title": "Quickstart - Docs by LangChain"
+    },
+    {
+      "id": 13,
+      "question": "What is the purpose of the `get_time` function in the provided code?",
+      "ground_truth": "The `get_time` function is used to get the current time.",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/functional-api",
+      "source_title": "Functional API overview - Docs by LangChain"
+    },
+    {
+      "id": 14,
+      "question": "How does LangGraph ensure backward compatibility in production?",
+      "ground_truth": "LangGraph applies the latest graph immediately to persisted state, effectively making every change a backward-compatible API change with respect to existing checkpoints.",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/backward-compatibility",
+      "source_title": "Backward compatibility - Docs by LangChain"
+    },
+    {
+      "id": 15,
+      "question": "What is the purpose of the 'human_review_node' function in the provided code?",
+      "ground_truth": "The 'human_review_node' function is used to create a node in the StateGraph that represents a human review step.",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/thinking-in-langgraph",
+      "source_title": "Thinking in LangGraph - Docs by LangChain"
+    },
+    {
+      "id": 16,
+      "question": "What is the purpose of the 'checkpointer' in LangGraph?",
+      "ground_truth": "to save state between runs",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/thinking-in-langgraph",
+      "source_title": "Thinking in LangGraph - Docs by LangChain"
+    },
+    {
+      "id": 17,
+      "question": "What is the purpose of the LangGraph API server when run locally?",
+      "ground_truth": "This in-memory server is designed for development and testing.",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/local-server",
+      "source_title": "Run a local server - Docs by LangChain"
+    },
+    {
+      "id": 18,
+      "question": "What is the format of streamed outputs when subgraphs are included?",
+      "ground_truth": "tuples (namespace, data), where namespace is a tuple with the path to the node where a subgraph is invoked",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/streaming",
+      "source_title": "Streaming - Docs by LangChain"
+    },
+    {
+      "id": 19,
+      "question": "What is the return type of the GraphOutput object in the default stream mode?",
+      "ground_truth": "What is the return type of the GraphOutput object in the default stream mode?",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/streaming",
+      "source_title": "Streaming - Docs by LangChain"
+    },
+    {
+      "id": 20,
+      "question": "What changes were made in the v1.2.0 release of LangChain?",
+      "ground_truth": "What changes were made in the v1.2.0 release of LangChain?",
+      "source_url": "https://docs.langchain.com/oss/python/releases/changelog",
+      "source_title": "Changelog - Docs by LangChain"
+    },
+    {
+      "id": 21,
+      "question": "What is the purpose of the `should_analyze` function in the provided code?",
+      "ground_truth": "The `should_analyze` function determines whether to analyze the data or take the simple path based on the 'needs_analysis' key in the `step1_result` dictionary.",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/choosing-apis",
+      "source_title": "Choosing between Graph and Functional APIs - Docs by LangChain"
+    },
+    {
+      "id": 22,
+      "question": "What is the urgency level classification in the given email?",
+      "ground_truth": "medium",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/thinking-in-langgraph",
+      "source_title": "Thinking in LangGraph - Docs by LangChain"
+    },
+    {
+      "id": 23,
+      "question": "What does the Functional API allow you to add to your applications?",
+      "ground_truth": "The Functional API allows you to add LangGraph’s key features (persistence, memory, human-in-the-loop, and streaming) to your applications with minimal changes to your existing code.",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/functional-api",
+      "source_title": "Functional API overview - Docs by LangChain"
+    },
+    {
+      "id": 24,
+      "question": "What is the output format in v2 mode?",
+      "ground_truth": "What is the output format in v2 mode?",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/streaming",
+      "source_title": "Streaming - Docs by LangChain"
+    },
+    {
+      "id": 25,
+      "question": "What is the termination condition in the graph?",
+      "ground_truth": "termination condition",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/use-graph-api",
+      "source_title": "Use the graph API - Docs by LangChain"
+    },
+    {
+      "id": 26,
+      "question": "What is the role of the 'add_messages' reducer in LangGraph?",
+      "ground_truth": "The 'add_messages' reducer in LangGraph handles considerations for updating lists of messages, such as updating existing messages and accepting short-hands for message formats.",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/use-graph-api",
+      "source_title": "Use the graph API - Docs by LangChain"
+    },
+    {
+      "id": 27,
+      "question": "What is the purpose of the 'defer=True' parameter in the graph API?",
+      "ground_truth": "It makes a node wait to execute until all pending tasks are finished.",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/use-graph-api",
+      "source_title": "Use the graph API - Docs by LangChain"
+    },
+    {
+      "id": 28,
+      "question": "What are the steps to test a linear graph in LangChain?",
+      "ground_truth": "Compile your agent with a checkpointer, call your agent’s update_state method, and invoke your agent with an interrupt_after parameter.",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/test",
+      "source_title": "Test - Docs by LangChain"
+    },
+    {
+      "id": 29,
+      "question": "What is the value of 'foo' in the state of subgraph_node_2?",
+      "ground_truth": "The value of 'foo' in the state of subgraph_node_2 is the concatenation of the values of 'foo' in the states of subgraph_node_1 and subgraph_node_2.",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/streaming",
+      "source_title": "Streaming - Docs by LangChain"
+    },
+    {
+      "id": 30,
+      "question": "How do you view more details of a deployment in LangGraph?",
+      "ground_truth": "Select the deployment you just created to view more details.",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/deploy",
+      "source_title": "LangSmith Deployment - Docs by LangChain"
+    },
+    {
+      "id": 31,
+      "question": "What is the purpose of the 'my_workflow' function in the LangChain example?",
+      "ground_truth": "The 'my_workflow' function determines which task to execute based on the input 't0'.",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/functional-api",
+      "source_title": "Functional API overview - Docs by LangChain"
+    },
+    {
+      "id": 32,
+      "question": "What are the nodes where execution should pause before the node is executed?",
+      "ground_truth": "What nodes should the execution pause before being executed?",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/interrupts",
+      "source_title": "Interrupts - Docs by LangChain"
+    },
+    {
+      "id": 33,
+      "question": "What is LangChain?",
+      "ground_truth": "LangChain provides integrations and composable components to streamline LLM application development.",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/overview",
+      "source_title": "LangGraph overview - Docs by LangChain"
+    },
+    {
+      "id": 34,
+      "question": "What happens when the 'always_failing' node is encountered in the graph?",
+      "ground_truth": "The node is retried twice, then the default_handler runs.",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/fault-tolerance",
+      "source_title": "Fault tolerance - Docs by LangChain"
+    },
+    {
+      "id": 35,
+      "question": "What happens when a node raises an exception in LangGraph?",
+      "ground_truth": "What happens when a node raises an exception in LangGraph?",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/use-graph-api",
+      "source_title": "Use the graph API - Docs by LangChain"
+    },
+    {
+      "id": 36,
+      "question": "What is the condition to remove the earliest two messages from the message history?",
+      "ground_truth": "The condition is that the length of the messages list should be greater than 2.",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/add-memory",
+      "source_title": "Memory - Docs by LangChain"
+    },
+    {
+      "id": 37,
+      "question": "What happens if retries are exhausted in the charge_payment node?",
+      "ground_truth": "The handler compensates by updating state and routing to finalize instead of aborting the graph.",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/fault-tolerance",
+      "source_title": "Fault tolerance - Docs by LangChain"
+    },
+    {
+      "id": 38,
+      "question": "How do you send custom user-defined data from inside a LangGraph node or tool?",
+      "ground_truth": "Use get_stream_writer to access the stream writer and emit custom data.",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/streaming",
+      "source_title": "Streaming - Docs by LangChain"
+    },
+    {
+      "id": 39,
+      "question": "What strategy is used to handle the boundary when trimming message history?",
+      "ground_truth": "What is the strategy used to handle the boundary when trimming message history?",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/add-memory",
+      "source_title": "Memory - Docs by LangChain"
+    },
+    {
+      "id": 40,
+      "question": "What command is used to install dependencies in the root of a new LangGraph app in edit mode?",
+      "ground_truth": "pip install -e .",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/local-server",
+      "source_title": "Run a local server - Docs by LangChain"
+    },
+    {
+      "id": 41,
+      "question": "What is the purpose of the 'subgraph_node_2' function in the provided code?",
+      "ground_truth": "The 'subgraph_node_2' function is used to update the shared state key 'foo' with the sum of its current value and the value of the subgraph state key 'bar'.",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/use-subgraphs",
+      "source_title": "Subgraphs - Docs by LangChain"
+    },
+    {
+      "id": 42,
+      "question": "What is LangGraph?",
+      "ground_truth": "What is LangGraph?",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/local-server",
+      "source_title": "Run a local server - Docs by LangChain"
+    },
+    {
+      "id": 43,
+      "question": "What is the thread ID in the parent_config?",
+      "ground_truth": "1",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/add-memory",
+      "source_title": "Memory - Docs by LangChain"
+    },
+    {
+      "id": 44,
+      "question": "What is the purpose of the summarization prompt in the code?",
+      "ground_truth": "The purpose of the summarization prompt is to extend or create a summary of the conversation based on the new messages.",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/add-memory",
+      "source_title": "Memory - Docs by LangChain"
+    },
+    {
+      "id": 45,
+      "question": "When should you choose the Graph API?",
+      "ground_truth": "Choose the Graph API when you need explicit control over workflow structure, complex branching, parallel processing, or team collaboration benefits.",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/choosing-apis",
+      "source_title": "Choosing between Graph and Functional APIs - Docs by LangChain"
+    },
+    {
+      "id": 46,
+      "question": "How do you validate human input in LangChain?",
+      "ground_truth": "You can validate human input using multiple interrupts.",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/interrupts",
+      "source_title": "Interrupts - Docs by LangChain"
+    },
+    {
+      "id": 47,
+      "question": "What is an example of a well-defined task that can be broken down into smaller, verifiable steps?",
+      "ground_truth": "Translating documents into different languages",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/workflows-agents",
+      "source_title": "Workflows and agents - Docs by LangChain"
+    },
+    {
+      "id": 48,
+      "question": "What should be included in the Command.update when returning Command from a tool?",
+      "ground_truth": "messages",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/use-graph-api",
+      "source_title": "Use the graph API - Docs by LangChain"
+    },
+    {
+      "id": 49,
+      "question": "What tools are supported by LangChain for real-time answers?",
+      "ground_truth": "What tools are supported by LangChain for real-time answers?",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/frontend/overview",
+      "source_title": "Overview - Docs by LangChain"
+    },
+    {
+      "id": 50,
+      "question": "What is the recommended modern syntax for adding edges in the Graph API?",
+      "ground_truth": "add_edge(START, ...), and add_edge(..., END)",
+      "source_url": "https://docs.langchain.com/oss/python/langgraph/graph-api",
+      "source_title": "Graph API overview - Docs by LangChain"
+    }
+  ]
+}
