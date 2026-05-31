@@ -1,15 +1,17 @@
 # FinOps AI Gateway
 
-An observable, cost-routing AI gateway: classify query complexity, retrieve with hybrid RAG, route to cheap vs expensive LLM tiers, and expose **tokens, cost, routing tier, and latency** in Grafana + LangSmith.
+An observable, cost-routing AI gateway: classify query complexity, retrieve with hybrid RAG, route to cheap vs expensive LLM tiers, and expose **routing, latency breakdown, modeled cost, and eval scores** in Grafana + LangSmith.
 
 ## 60-second demo
 
 ```powershell
-copy .env.example .env   # set GROQ_API_KEY + LANGCHAIN_API_KEY
+copy .env.example .env   # GROQ_API_KEY + LANGCHAIN_API_KEY
 .\scripts\bootstrap_demo.ps1
 ```
 
-Open **http://localhost:3001** → dashboard **FinOps AI Gateway**. First run ~15–25 min (ingest + load test). See [How to run](#how-to-run) for details.
+Open **http://localhost:3001** → dashboard **FinOps AI Gateway**.
+
+**Numbers for interviews:** [data/RESULTS.md](data/RESULTS.md) (generated from committed JSON — run `uv run finops-report-results` after new benchmarks).
 
 ---
 
@@ -17,10 +19,10 @@ Open **http://localhost:3001** → dashboard **FinOps AI Gateway**. First run ~1
 
 Teams shipping RAG + LLM features face two blind spots:
 
-1. **Cost** — every query hits the same expensive model, even for simple factual lookups.
-2. **Quality** — retrieval changes (BM25, reranking) are hard to compare without structured eval metrics.
+1. **Cost visibility** — every query hits the same model tier with no per-request accounting.
+2. **Retrieval quality** — BM25/reranker changes are hard to compare without structured eval.
 
-This project treats the gateway as a **FinOps control plane**: route by complexity, measure spend per tier, and score retrieval quality with RAGAS — all visible in Grafana.
+This project is a **FinOps control plane for a gateway**: route by complexity, expose tier-labeled metrics, and compare retrieval pipelines — with explicit separation between **measured behavior** and **simulated cost modeling**.
 
 ---
 
@@ -30,56 +32,55 @@ This project treats the gateway as a **FinOps control plane**: route by complexi
 
 Editable source: [docs/architecture.excalidraw](docs/architecture.excalidraw)
 
-**One query flows through four steps:**
+**One query:** classify (Groq) → hybrid retrieve (pgvector + BM25 + rerank) → route (Ollama / Groq or Claude) → Pushgateway → Grafana + LangSmith.
 
-1. **Classify** — Groq `llama-3.1-8b-instant` → `simple | medium | complex`
-2. **Retrieve** — pgvector + BM25 → RRF fusion → cross-encoder rerank → top-k chunks
-3. **Route** — tier picks the answer model:
-   - `simple` → Ollama `qwen3:4b` (local, $0 actual)
-   - `medium` / `complex` → Claude Haiku/Sonnet *or* Groq fallback in demo mode
-4. **Observe** — metrics → Pushgateway → Prometheus → Grafana; traces → LangSmith
-
-Ollama runs in Docker Compose by default ([docs/OLLAMA.md](docs/OLLAMA.md)). On Windows with a GPU, stop the compose Ollama container and use host Ollama for faster demos.
+Ollama: bundled in Docker Compose by default ([docs/OLLAMA.md](docs/OLLAMA.md)). Optional host GPU on Windows for faster local generation.
 
 ---
 
 ## Results
 
-Numbers below are from runs on this project’s LangGraph doc corpus. Grafana uses **simulated Claude list pricing** for medium/complex tiers even when Groq answers for free (demo mode). See [routing/pricing.py](src/finops_gateway/routing/pricing.py).
+Full definitions: [docs/METHODOLOGY.md](docs/METHODOLOGY.md). Summary from latest committed artifacts:
 
-### Tier routing (12-query load test)
+### Routing (measured) — load test n=12
+
+| Finding | Value |
+|---------|-------|
+| Simple tier (local Ollama) | **7 / 12 (58%)** |
+| Medium | 3 / 12 |
+| Complex | 2 / 12 |
+
+### Latency (measured)
+
+| Component | p50 (approx.) |
+|-----------|----------------|
+| End-to-end | **~276s** (concurrency=2, local Ollama) |
+| Retrieval | **~2.3s** |
+| Generation (simple tier) | **~356s** (local Ollama — dominates wall time) |
+| Generation (medium/complex) | **~1–4s** (Groq in demo mode) |
+
+Retrieval is fast; **local generation is slow and free**. See Grafana panel **Latency Breakdown p50**.
+
+### Cost (simulated FinOps model — not actual API spend)
+
+Default demo mode uses **Groq + Ollama ($0 actual)**. Grafana applies **Claude list rates × tokens** for medium/complex tiers.
 
 | Metric | Value |
 |--------|-------|
-| Simple tier (local Ollama) | **7 / 12 (58%)** |
-| Simulated spend (actual routing) | **$0.015** total |
-| Simulated spend (if all complex) | ~$0.062 total |
-| **Spend reduction** | **~76%** vs all-complex baseline |
-| p50 latency | 56s (CPU/local Ollama — see caveats) |
+| Simulated spend (tier routing) | **$0.0143** (12 queries) |
+| Simulated all-complex counterfactual | **$0.0609** |
+| Modeled savings vs counterfactual | **~77%** (simulation only) |
+| **Actual API spend (demo mode)** | **$0** |
 
-Source: [data/load_test_results.json](data/load_test_results.json)
+### RAGAS pilot (n=8 — directional only)
 
-### RAGAS — hybrid vs baseline retrieval (8 pairs, k=4)
-
-| Metric | Baseline (cosine) | Hybrid + rerank | Delta |
-|--------|-------------------|-----------------|-------|
-| context_precision | 0.6042 | **0.7917** | **+0.1875** |
-| faithfulness | 0.7690 | 1.0000 | +0.2310 |
-| answer_relevancy | 0.7716 | 0.7947 | +0.0231 |
+| Metric | Baseline | Hybrid | Delta |
+|--------|----------|--------|-------|
+| **context_precision** | 0.6042 | **0.7917** | **+0.1875** |
+| faithfulness | 0.7690 | 1.0000 | +0.2310 *(high variance at n=8)* |
+| answer_relevancy | 0.7716 | 0.7947 | +0.0231 *(embedding proxy)* |
 
 Source: [data/eval/ragas_results_8pair.md](data/eval/ragas_results_8pair.md)
-
-### Grafana panels
-
-After bootstrap, confirm in dashboard **FinOps AI Gateway**:
-
-- **Cost by Tier (USD total)**
-- **Routing Decision Breakdown**
-- **Retrieval Latency p95**
-- **Tokens Used by Tier**
-- **RAGAS Scores (baseline vs hybrid)**
-
-![Cost dashboard](docs/images/grafana-dashboard.png)
 
 ---
 
@@ -87,46 +88,20 @@ After bootstrap, confirm in dashboard **FinOps AI Gateway**:
 
 ### Prerequisites
 
-- Python 3.11+ and [uv](https://docs.astral.sh/uv/)
-- Docker Desktop
-- Free [Groq](https://console.groq.com) API key (classifier)
-- [LangSmith](https://smith.langchain.com) API key (tracing)
+- Python 3.11+, [uv](https://docs.astral.sh/uv/), Docker Desktop
+- Free [Groq](https://console.groq.com) + [LangSmith](https://smith.langchain.com) API keys
 
-### Quick start
+### Bootstrap
 
 ```powershell
-git clone <your-repo-url>
-cd finops-ai-gateway
-
 copy .env.example .env
-# Required: GROQ_API_KEY, LANGCHAIN_API_KEY
-
 .\scripts\bootstrap_demo.ps1
 ```
 
-Linux/macOS:
-
-```bash
-chmod +x scripts/bootstrap_demo.sh
-./scripts/bootstrap_demo.sh
-```
-
-### What bootstrap does
-
-1. `docker compose up -d` — Postgres, Redis, Prometheus, Pushgateway, Grafana, **Ollama**
-2. Pull `nomic-embed-text` + `qwen3:4b` into Ollama
-3. `uv sync` → ingest LangGraph docs → demo tiers → 12-request load test
-4. `finops-publish-results` — pushes saved RAGAS 8-pair scores + load-test metrics
-
-### Manual steps (optional)
+Then regenerate the factual summary:
 
 ```powershell
-docker compose up -d
-uv sync
-uv run finops-ingest-langgraph
-uv run finops-query-gateway --question "What is LangGraph?"
-uv run finops-demo-tiers
-uv run finops-load-test --requests 12 --concurrency 2
+uv run finops-report-results
 uv run finops-publish-results
 ```
 
@@ -136,8 +111,6 @@ uv run finops-publish-results
 |---------|-----|
 | Grafana | http://localhost:3001 (admin / admin) |
 | Prometheus | http://localhost:9090 |
-| Pushgateway | http://localhost:9091 |
-| Postgres | localhost:5433 |
 
 ### Tests
 
@@ -152,17 +125,18 @@ uv run pytest
 
 | Doc | Topic |
 |-----|-------|
-| [docs/OLLAMA.md](docs/OLLAMA.md) | Bundled vs host GPU Ollama |
-| [docs/RAGAS_EVAL.md](docs/RAGAS_EVAL.md) | Full RAGAS eval workflow |
-| [docs/BLOG_DRAFT.md](docs/BLOG_DRAFT.md) | Blog post with real numbers |
-| [docs/LINKEDIN_POST.md](docs/LINKEDIN_POST.md) | LinkedIn copy + screenshot |
-| [docs/PUBLISH.md](docs/PUBLISH.md) | GitHub push + profile pin checklist |
-| [docs/PROJECT_CONTEXT.md](docs/PROJECT_CONTEXT.md) | Architecture reference for contributors |
+| [docs/METHODOLOGY.md](docs/METHODOLOGY.md) | Measured vs simulated — read before interviews |
+| [data/RESULTS.md](data/RESULTS.md) | Auto-generated numbers from JSON |
+| [docs/RAGAS_EVAL.md](docs/RAGAS_EVAL.md) | RAGAS workflow |
+| [docs/BLOG_DRAFT.md](docs/BLOG_DRAFT.md) | Blog copy (honest framing) |
+| [docs/PUBLISH.md](docs/PUBLISH.md) | GitHub / LinkedIn checklist |
 
 ---
 
-## Caveats
+## Interview talking points
 
-- **Simulated pricing** — Grafana cost uses Claude list rates; actual API spend may be $0 on Groq/Ollama demo mode.
-- **Latency** — local Ollama on 4GB GPU or CPU Docker is slow; routing/cost story is still valid.
-- **RAGAS scope** — canonical benchmark is **8 pairs**; full 50-pair runs need cloud judge quota or paid API.
+**Say:** “58% of queries routed to local Ollama; retrieval improved +0.19 context_precision on an 8-pair pilot; Grafana separates retrieval (~2s) from local generation (~6 min p50) vs cloud (~seconds).”
+
+**Say:** “Cost panel is a FinOps **model** using Claude list rates — actual spend was $0 on Groq/Ollama demo mode.”
+
+**Don't say:** “We cut API spend 76%” without a measured Anthropic bill.

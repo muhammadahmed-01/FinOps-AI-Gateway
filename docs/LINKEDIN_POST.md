@@ -4,22 +4,24 @@
 
 ---
 
-I built a FinOps-style AI gateway that routes queries by complexity instead of sending everything to the most expensive model.
+I built an observable AI gateway that routes LangGraph doc queries by complexity — and I'm careful about which numbers are measured vs modeled.
 
-On a 12-query load test over LangGraph docs:
-→ **58%** of queries routed to local Ollama ($0 tier)
-→ **~76%** lower simulated token spend vs routing everything to the complex tier
+**Measured:**
+→ **58%** of queries routed to local Ollama (7/12 load test)
+→ Retrieval p50 **~2s**; local generation p50 **~6 min** (4GB GPU) vs cloud **~seconds**
+→ Hybrid retrieval **+0.19 context_precision** on an 8-pair pilot RAGAS eval
 
-Hybrid retrieval (BM25 + vector + rerank) beat cosine-only baseline on RAGAS context precision: **0.60 → 0.79** (+0.19 on 8-pair eval).
+**Modeled (not actual spend):**
+→ Grafana FinOps panel estimates **~77% lower simulated cost** vs all-complex-tier routing (Claude list rates × tokens). Actual API spend in demo mode: **$0** (Groq + Ollama).
 
 Stack: Postgres/pgvector, Redis, Ollama, Groq, Prometheus, Grafana, LangSmith.
 
-Clone + `docker compose up` + one bootstrap script reproduces the Grafana dashboard.
+Clone + bootstrap script → reproducible Grafana dashboard.
 
-Repo: *(add GitHub URL)*
+Repo: *(add URL when published)*
 
-#FinOps #LLM #RAG #MLOps #AIEngineering
+#FinOps #LLM #RAG #Observability
 
 ---
 
-**Screenshot note:** Capture live from Grafana dashboard **FinOps AI Gateway** panels *Cost by Tier* and *Routing Decision Breakdown* after running `scripts/bootstrap_demo.ps1`, or use the committed PNG in this repo.
+See [METHODOLOGY.md](METHODOLOGY.md) before posting — do not drop the simulated/actual cost distinction.

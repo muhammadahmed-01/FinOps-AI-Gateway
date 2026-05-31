@@ -2,6 +2,7 @@
 
 Compare **cosine-only** retrieval against **BM25 + pgvector + RRF + cross-encoder rerank** using [RAGAS](https://docs.ragas.io/) metrics.
 
+**Portfolio numbers:** use the **n=8 pilot** in [ragas_results_8pair.md](../data/eval/ragas_results_8pair.md). Interpretation rules: [METHODOLOGY.md](METHODOLOGY.md).
 ## Metrics
 
 | Metric | What it measures | Judge |

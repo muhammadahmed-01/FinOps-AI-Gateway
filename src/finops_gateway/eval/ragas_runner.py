@@ -280,7 +280,7 @@ def format_comparison_table(
         lines.append(f"| {metric} | {b:.4f} | {h:.4f} | {sign}{delta:.4f} |")
     lines.append("")
     lines.append(
-        "_answer_relevancy = embedding cosine. "
-        "RAGAS judge: gemini (free) > ollama llama3.2:1b judge + qwen3:4b answers._"
+        "_answer_relevancy = embedding cosine proxy. "
+        "RAGAS LLM judge metrics require a cloud judge with sufficient quota._"
     )
     return "\n".join(lines)

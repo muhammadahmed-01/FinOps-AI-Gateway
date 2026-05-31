@@ -75,12 +75,12 @@ def render_architecture() -> None:
 def render_grafana_mock() -> None:
     img = Image.new("RGB", (800, 480), "#181b1f")
     draw = ImageDraw.Draw(img)
-    draw.text((24, 16), "FinOps AI Gateway — Cost by Tier (USD total)", fill="#d8d9da", font=FONT)
+    draw.text((24, 16), "Simulated cost by tier (Claude list rates)", fill="#d8d9da", font=FONT)
 
     tiers = [
         ("simple", 0.0, "#73bf69"),
-        ("medium", 0.004702, "#fade2a"),
-        ("complex", 0.010395, "#f2495c"),
+        ("medium", 0.0041, "#fade2a"),
+        ("complex", 0.0102, "#f2495c"),
     ]
     max_val = 0.011
     x0, bar_top, bar_h = 80, 80, 280
@@ -94,8 +94,9 @@ def render_grafana_mock() -> None:
         draw.text((x, bar_top + bar_h + 12), tier, fill="#d8d9da", font=FONT)
         draw.text((x, bar_top + bar_h + 28), f"${cost:.4f}", fill="#d8d9da", font=FONT)
 
-    draw.text((24, 400), "Routing: simple 7 | medium 3 | complex 2  (58% local $0 tier)", fill="#8e8e8e", font=FONT)
-    draw.text((24, 430), "Load test n=12 — see data/load_test_results.json", fill="#8e8e8e", font=FONT)
+    draw.text((24, 400), "Routing: simple 7 | medium 3 | complex 2  (58% local tier)", fill="#8e8e8e", font=FONT)
+    draw.text((24, 420), "Simulated model total $0.014 — actual API spend $0 (demo mode)", fill="#8e8e8e", font=FONT)
+    draw.text((24, 440), "Source: data/load_test_results.json", fill="#8e8e8e", font=FONT)
 
     out = IMAGES / "grafana-cost-by-tier.png"
     img.save(out)

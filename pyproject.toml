@@ -33,6 +33,7 @@ dependencies = [
 [project.scripts]
 finops-trace-smoke = "finops_gateway.scripts.trace_smoke:main"
 finops-ingest-langgraph = "finops_gateway.scripts.ingest_langgraph_docs:main"
+finops-ingest-signals = "finops_gateway.scripts.ingest_signals:main"
 finops-query-rag = "finops_gateway.scripts.query_rag:main"
 finops-query-gateway = "finops_gateway.scripts.query_gateway:main"
 finops-demo-tiers = "finops_gateway.scripts.demo_tiers:main"
@@ -42,6 +43,7 @@ finops-ragas-eval = "finops_gateway.scripts.run_ragas_eval:main"
 finops-chat-session = "finops_gateway.scripts.chat_session:main"
 finops-load-test = "finops_gateway.scripts.load_test:main"
 finops-publish-results = "finops_gateway.scripts.publish_results:main"
+finops-report-results = "finops_gateway.scripts.report_results:main"
 
 [build-system]
 requires = ["uv_build>=0.11.17,<0.12.0"]

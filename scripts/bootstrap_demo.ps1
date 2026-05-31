@@ -57,11 +57,14 @@ Write-Host "`n[7/8] Running demo queries + load test (may take 10-20 min on CPU 
 uv run finops-demo-tiers
 uv run finops-load-test --requests 12 --concurrency 2
 
-Write-Host "`n[8/8] Publishing saved RAGAS scores + load-test metrics to Grafana..."
+Write-Host "`n[8/9] Publishing saved RAGAS scores + load-test metrics to Grafana..."
 uv run finops-publish-results
+
+Write-Host "`n[9/9] Regenerating factual results summary..."
+uv run finops-report-results
 
 Write-Host "`n=== Demo ready ===" -ForegroundColor Green
 Write-Host "Grafana:    http://localhost:3001  (admin / admin)"
 Write-Host "Dashboard:  FinOps AI Gateway"
 Write-Host "Prometheus: http://localhost:9090"
-Write-Host "`nResults: data/load_test_results.md, data/eval/ragas_results_8pair.md"
+Write-Host "`nResults: data/RESULTS.md (factual summary), data/eval/ragas_results_8pair.md"

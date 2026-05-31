@@ -7,7 +7,7 @@ Use this when you are ready to push the portfolio to GitHub and LinkedIn.
 - [ ] Confirm `.env` is **not** tracked (`git status` — should be ignored)
 - [ ] Run `uv run pytest` — all green
 - [ ] Run `.\scripts\bootstrap_demo.ps1` — Grafana panels populated
-- [ ] Refresh [docs/images/grafana-cost-by-tier.png](../docs/images/grafana-cost-by-tier.png) from live Grafana if numbers changed
+- [ ] Run `uv run finops-report-results` — verify [data/RESULTS.md](../data/RESULTS.md) matches JSON
 
 ## Create public repo
 
@@ -36,7 +36,7 @@ Copy text from [LINKEDIN_POST.md](LINKEDIN_POST.md). Attach `docs/images/grafana
 
 Suggested headline finding:
 
-> 58% of gateway queries routed to $0 local Ollama; hybrid RAG raised context precision from 0.60 → 0.79 (+0.19).
+> 58% of queries routed to local Ollama; hybrid RAG +0.19 context_precision on an 8-pair pilot. Grafana cost is simulated (actual spend $0 in demo mode).
 
 ## Blog
 

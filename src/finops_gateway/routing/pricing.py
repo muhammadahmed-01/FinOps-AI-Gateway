@@ -1,11 +1,11 @@
 """Token usage extraction and per-tier cost estimation.
 
-Cost rates follow Anthropic Claude API pricing (simulated FinOps accounting):
-https://platform.claude.com/docs/en/about-claude/pricing
+IMPORTANT — demo vs live:
+- Grafana ``finops_cost_dollars_total`` uses Claude list prices × token counts (FinOps model).
+- Demo mode (no real ANTHROPIC_API_KEY): medium/complex answers use Groq; actual spend is $0.
+- Live mode: medium/complex use Claude; Grafana cost tracks the same formula on real tokens.
 
-When ANTHROPIC_API_KEY is not set, medium/complex answers run on Groq (free tier)
-but Grafana cost still uses Claude tier rates × token counts — so you can demo
-cost-by-complexity without paying Anthropic. Actual API spend may be $0 on Groq.
+Rates: https://platform.claude.com/docs/en/about-claude/pricing
 """
 
 from __future__ import annotations

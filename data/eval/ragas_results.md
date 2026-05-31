@@ -1,18 +1,19 @@
 # RAGAS results
 
-## Canonical benchmark — use this for README / blog
+## Pilot eval (n=8) — use for portfolio
 
-See **[ragas_results_8pair.md](ragas_results_8pair.md)** (8 pairs, valid judge scores).
+See **[ragas_results_8pair.md](ragas_results_8pair.md)**. Lead with **context_precision** (+0.19); do not over-claim faithfulness at n=8.
 
-## Latest full run — 20 pairs (judge invalid)
+## Invalid runs — do not cite
 
-> **Judge scores invalid** — local `qwen3:4b` failed RAGAS JSON parsing on all judge jobs.
-> Do not cite faithfulness/context_precision below. Re-score with `--use-cache` + Groq when quota allows.
+### 20 pairs — local Ollama judge failed (JSON parse)
 
-| Metric | Baseline (cosine) | Hybrid+rerank | Delta |
-|--------|-------------------|---------------|-------|
+| Metric | Baseline | Hybrid | Delta |
+|--------|----------|--------|-------|
 | faithfulness | 0.0000 | 0.0000 | +0.0000 |
 | answer_relevancy | 0.5206 | 0.5206 | +0.0000 |
 | context_precision | 0.0000 | 0.0000 | +0.0000 |
 
-_answer_relevancy = embedding cosine (valid). RAGAS judge metrics require Groq/Gemini re-score._
+### 50 pairs — Groq quota exhausted mid-run
+
+Hybrid faithfulness/context_precision invalid (0.0000). See `data/eval/ragas_full_50.log`.

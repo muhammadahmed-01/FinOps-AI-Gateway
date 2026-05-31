@@ -25,6 +25,8 @@ class RequestResult:
     tier: str = ""
     error: str = ""
     retrieval_latency_s: float = 0.0
+    classification_latency_s: float = 0.0
+    generation_latency_s: float = 0.0
     cost_usd: float = 0.0
 
 
@@ -51,6 +53,8 @@ def _run_one(index: int, question: str, k: int) -> RequestResult:
             latency_s=latency,
             tier=str(result["tier"]),
             retrieval_latency_s=float(result["retrieval_latency_s"]),
+            classification_latency_s=float(result.get("classification_latency_s", 0.0)),
+            generation_latency_s=float(result.get("generation_latency_s", 0.0)),
             cost_usd=float(result["usage"]["cost_usd"]),
         )
     except Exception as exc:
@@ -119,6 +123,44 @@ def format_summary(
                 "",
             ]
         )
+    retrieval_lat = [r.retrieval_latency_s for r in ok if r.retrieval_latency_s > 0]
+    class_lat = [r.classification_latency_s for r in ok if r.classification_latency_s > 0]
+    gen_lat = [r.generation_latency_s for r in ok if r.generation_latency_s > 0]
+    if retrieval_lat or class_lat or gen_lat:
+        lines.append("## Latency breakdown (measured)")
+        lines.append("")
+        if retrieval_lat:
+            lines.append(f"- retrieval p50: {_percentile(retrieval_lat, 50):.2f}s")
+        if class_lat:
+            lines.append(f"- classification p50: {_percentile(class_lat, 50):.2f}s")
+        if gen_lat:
+            lines.append(f"- generation p50: {_percentile(gen_lat, 50):.2f}s")
+        for tier in ("simple", "medium", "complex"):
+            tier_gen = [r.generation_latency_s for r in ok if r.tier == tier and r.generation_latency_s > 0]
+            if tier_gen:
+                lines.append(
+                    f"- generation p50 ({tier}): {_percentile(tier_gen, 50):.2f}s"
+                )
+        lines.append("")
+    simulated_total = sum(r.cost_usd for r in ok)
+    complex_costs = [r.cost_usd for r in ok if r.tier == "complex" and r.cost_usd > 0]
+    if simulated_total > 0 or complex_costs:
+        complex_avg = statistics.mean(complex_costs) if complex_costs else 0.0
+        counterfactual = complex_avg * len(ok) if complex_costs else 0.0
+        lines.extend(
+            [
+                "## Cost (simulated FinOps model)",
+                "",
+                f"- simulated spend (tier routing): ${simulated_total:.4f}",
+            ]
+        )
+        if counterfactual > 0:
+            savings = (1 - simulated_total / counterfactual) * 100
+            lines.append(
+                f"- simulated all-complex counterfactual: ${counterfactual:.4f} "
+                f"({savings:.0f}% modeled savings — not actual API spend)"
+            )
+        lines.append("")
     if tiers:
         lines.append("## Routing tiers")
         lines.append("")

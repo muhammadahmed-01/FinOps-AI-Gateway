@@ -18,11 +18,12 @@ An **observable, cost-routing AI gateway** over a document corpus (LangGraph/Lan
 
 ## Billing model (important)
 
-| What Grafana shows | What you actually pay |
-|--------------------|------------------------|
-| Claude Haiku/Sonnet **list prices** × tokens | Only if real `ANTHROPIC_API_KEY` is set |
-| Simple tier $0 | Ollama local — always $0 |
-| Medium/complex with placeholder Anthropic key | **Groq free tier** answers; Grafana still shows simulated Claude cost |
+| What Grafana shows | What you actually pay (default demo) |
+|--------------------|--------------------------------------|
+| Claude Haiku/Sonnet **list prices** × tokens | **$0** — Groq answers medium/complex, Ollama simple |
+| Simulated cost deltas vs all-complex | **Modeled counterfactual**, not measured savings |
+
+See [docs/METHODOLOGY.md](METHODOLOGY.md). Live mode (`ANTHROPIC_API_KEY` set) uses real Claude for medium/complex.
 
 Pricing source: https://platform.claude.com/docs/en/about-claude/pricing  
 - Haiku 4.5: $1 / $5 per MTok (in/out)  

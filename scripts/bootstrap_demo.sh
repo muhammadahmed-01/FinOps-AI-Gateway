@@ -53,8 +53,12 @@ uv run finops-demo-tiers
 uv run finops-load-test --requests 12 --concurrency 2
 
 echo
-echo "[8/8] Publishing metrics to Grafana..."
+echo "[8/9] Publishing metrics to Grafana..."
 uv run finops-publish-results
+
+echo
+echo "[9/9] Regenerating factual results summary..."
+uv run finops-report-results
 
 echo
 echo "=== Demo ready ==="

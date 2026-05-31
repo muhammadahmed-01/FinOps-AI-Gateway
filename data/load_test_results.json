@@ -1,126 +1,126 @@
 {
   "requests": 12,
   "concurrency": 2,
-  "elapsed_s": 805.8013517000072,
+  "elapsed_s": 1656.0006701000093,
   "results": [
     {
       "index": 0,
       "question": "What is the role of the input_message in the workflow?",
       "ok": true,
-      "latency_s": 203.48480429998017,
+      "latency_s": 21.321945800009416,
       "tier": "medium",
       "error": "",
-      "retrieval_latency_s": 197.836292699998,
-      "cost_usd": 0.001742
+      "retrieval_latency_s": 18.297196800005622,
+      "cost_usd": 0.0014290000000000001
     },
     {
       "index": 1,
       "question": "What is the output of get_state_history in our example?",
       "ok": true,
-      "latency_s": 447.55548290000297,
+      "latency_s": 571.2623086000094,
       "tier": "simple",
       "error": "",
-      "retrieval_latency_s": 198.3975710000086,
+      "retrieval_latency_s": 18.566217400017194,
       "cost_usd": 0.0
     },
     {
       "index": 2,
       "question": "What is the minimum length for a password in the provided code?",
       "ok": true,
-      "latency_s": 276.34458450000966,
+      "latency_s": 638.917949900002,
       "tier": "simple",
       "error": "",
-      "retrieval_latency_s": 245.42135230000713,
+      "retrieval_latency_s": 2.2240540999919176,
       "cost_usd": 0.0
     },
     {
       "index": 3,
       "question": "What is the correct way to create records in a LangChain interrupt?",
       "ok": true,
-      "latency_s": 6.436299399996642,
+      "latency_s": 11.895620900002541,
       "tier": "complex",
       "error": "",
-      "retrieval_latency_s": 3.8857253000023775,
+      "retrieval_latency_s": 7.760396300000139,
       "cost_usd": 0.0058379999999999994
     },
     {
       "index": 4,
       "question": "What happens when stream.interrupted is True?",
       "ok": true,
-      "latency_s": 61.01980690000346,
+      "latency_s": 196.716777499998,
       "tier": "simple",
       "error": "",
-      "retrieval_latency_s": 27.320789399993373,
+      "retrieval_latency_s": 2.2820284999907017,
       "cost_usd": 0.0
     },
     {
       "index": 5,
       "question": "What is the purpose of the 'tasks' streaming mode in LangChain?",
       "ok": true,
-      "latency_s": 6.526081100018928,
+      "latency_s": 5.87017080001533,
       "tier": "medium",
       "error": "",
-      "retrieval_latency_s": 4.099760999990394,
-      "cost_usd": 0.00144
+      "retrieval_latency_s": 2.2453891999903135,
+      "cost_usd": 0.001364
     },
     {
       "index": 6,
       "question": "What is the purpose of configuring per-node timeouts in LangGraph?",
       "ok": true,
-      "latency_s": 32.58254790000501,
+      "latency_s": 5.332384999986971,
       "tier": "medium",
       "error": "",
-      "retrieval_latency_s": 30.224742999998853,
-      "cost_usd": 0.00152
+      "retrieval_latency_s": 2.280752599996049,
+      "cost_usd": 0.001307
     },
     {
       "index": 7,
       "question": "What is the Graph API overview in LangChain?",
       "ok": true,
-      "latency_s": 31.305953999981284,
+      "latency_s": 355.62170449999394,
       "tier": "simple",
       "error": "",
-      "retrieval_latency_s": 4.0990823000029195,
+      "retrieval_latency_s": 2.1567498999938834,
       "cost_usd": 0.0
     },
     {
       "index": 8,
       "question": "What is a thread in LangGraph persistence?",
       "ok": true,
-      "latency_s": 51.30878719998873,
+      "latency_s": 355.8895634000073,
       "tier": "simple",
       "error": "",
-      "retrieval_latency_s": 4.617335100017954,
+      "retrieval_latency_s": 2.70295070001157,
       "cost_usd": 0.0
     },
     {
       "index": 9,
       "question": "What is the maximum number of attempts for the 'model' node?",
       "ok": true,
-      "latency_s": 219.18126509999274,
+      "latency_s": 388.77343060000567,
       "tier": "simple",
       "error": "",
-      "retrieval_latency_s": 25.90482160000829,
+      "retrieval_latency_s": 2.1504592999990564,
       "cost_usd": 0.0
     },
     {
       "index": 10,
       "question": "What happens when you pass a Command with update as input to invoke() or stream()?",
       "ok": true,
-      "latency_s": 7.720365499990294,
+      "latency_s": 5.937661999982083,
       "tier": "complex",
       "error": "",
-      "retrieval_latency_s": 4.266542099998333,
-      "cost_usd": 0.004557
+      "retrieval_latency_s": 2.419968800008064,
+      "cost_usd": 0.004314
     },
     {
       "index": 11,
       "question": "What is the purpose of the multiply function in the LangGraph Functional API?",
       "ok": true,
-      "latency_s": 227.82839800001238,
+      "latency_s": 514.259100299998,
       "tier": "simple",
       "error": "",
-      "retrieval_latency_s": 188.86304459997336,
+      "retrieval_latency_s": 2.291267599997809,
       "cost_usd": 0.0
     }
   ]

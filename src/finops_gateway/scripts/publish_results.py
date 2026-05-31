@@ -41,6 +41,8 @@ def replay_load_test(path: Path) -> int:
             output_tokens=_DEFAULT_OUTPUT_TOKENS,
             cost_usd=float(row.get("cost_usd", 0.0)),
             retrieval_latency_s=float(row.get("retrieval_latency_s", 0.0)),
+            classification_latency_s=float(row.get("classification_latency_s", 0.0)),
+            generation_latency_s=float(row.get("generation_latency_s", 0.0)),
         )
         replayed += 1
     return replayed

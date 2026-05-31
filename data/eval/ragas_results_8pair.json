@@ -1,7 +1,15 @@
 {
-  "description": "Authoritative 8-pair RAGAS comparison (k=4). Groq judge for faithfulness/context_precision; embedding proxy for answer_relevancy.",
+  "description": "Pilot RAGAS comparison (n=8, k=4). Not statistically powered — use for directional retrieval signal only.",
   "sample_count": 8,
   "k": 4,
+  "run_date": "2026-05-30",
+  "methodology": {
+    "sample_count": 8,
+    "judge": "Groq llama-3.1-8b-instant (RAGAS faithfulness + context_precision)",
+    "answer_model": "Ollama qwen3:4b (both pipelines)",
+    "answer_relevancy": "embedding cosine proxy (not RAGAS LLM judge)",
+    "limitations": "Small sample (n=8). faithfulness=1.0000 for hybrid has high variance — lead with context_precision delta."
+  },
   "baseline": {
     "faithfulness": 0.769,
     "answer_relevancy": 0.7716,
